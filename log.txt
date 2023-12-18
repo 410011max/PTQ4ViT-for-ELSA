@@ -7,13 +7,12 @@ ELSA_deit_b_u24_9.2G.pth:  81.498
 ELSA_deit_b_7G.pth:  81.27
 ELSA_deit_b_6G.pth:  80.958
 
-swin_small_patch4_window7_224.pth:  83.144
-ELSA_swin_s_u24_4.6G.pth:  82.738
-ELSA_swin_s_4G.pth:  82.702
-ELSA_swin_s_3.5G.pth:  82.424
+swin_small_patch4_window7_224.pth:  83.154
+ELSA_swin_s_u24_4.6G.pth:  82.68
+ELSA_swin_s_4G.pth:  82.664
+ELSA_swin_s_3.5G.pth:  82.44
 
-swin_base_patch4_window7_224.pth:  83.392
-ELSA_swin_b_u24_8G.pth:  83.076
-ELSA_swin_b_6G.pth:  82.91
-ELSA_swin_b_5.3G.pth:  82.714
-
+swin_base_patch4_window7_224.pth:  83.344
+ELSA_swin_b_u24_8G.pth:  83.136
+ELSA_swin_b_6G.pth:  82.924
+ELSA_swin_b_5.3G.pth:  82.71
