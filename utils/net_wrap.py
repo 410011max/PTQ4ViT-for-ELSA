@@ -61,6 +61,7 @@ def wrap_modules_in_net(net,cfg):
             replace_m=new_m
             wrapped_modules[name] = new_m
             setattr(father_module,name[idx:],replace_m)
+            # print(f"replace {name} with qconv")
         elif isinstance(m,nn.Linear):
             # Linear Layer
             idx = idx+1 if idx != 0 else idx
@@ -70,6 +71,7 @@ def wrap_modules_in_net(net,cfg):
             replace_m=new_m
             wrapped_modules[name] = new_m
             setattr(father_module,name[idx:],replace_m)
+            # print(f"replace {name} with {module_types[name[idx:]]}")
         elif isinstance(m,MatMul):
             # Matmul Layer
             idx = idx+1 if idx != 0 else idx
@@ -77,6 +79,7 @@ def wrap_modules_in_net(net,cfg):
             replace_m=new_m
             wrapped_modules[name] = new_m
             setattr(father_module,name[idx:],replace_m)
+            # print(f"replace {name} with {module_types[name[idx:]]}")
     print("Completed net wrap.")
     return wrapped_modules
 
