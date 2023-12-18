@@ -4,8 +4,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import timm
 from timm.models import vision_transformer
-from timm.models.vision_transformer import Attention
-from timm.models.swin_transformer import WindowAttention
+# from timm.models.vision_transformer import Attention
+# from timm.models.swin_transformer import WindowAttention
+from models.deit import Attention
+from models.swin import WindowAttention
+
 
 def attention_forward(self, x):
     B, N, C = x.shape
@@ -59,7 +62,7 @@ class MatMul(nn.Module):
     def forward(self, A, B):
         return A @ B
 
-def get_net(name):
+def get_net(name, weight):
     """
     Get a vision transformer model.
     This will replace matrix multiplication operations with matmul modules in the model.
@@ -74,17 +77,32 @@ def get_net(name):
     These models are finetuned on imagenet-1k and should use ViTImageNetLoaderGenerator
     for calibration and testing.
     """
-    net = timm.create_model(name, pretrained=True)
+    # net = timm.create_model(name, pretrained=True)
+    
+    # cutomized model
+    from models.config import get_config
+    from models import build_model
 
+    # 指定模型的路徑
+    config = get_config(name)
+    net = build_model(config)
+    print(f"load pretrained weights of {config.MODEL.NAME} from {weight}")
+    weights = torch.load(weight, map_location='cpu')['model']
+    info = net.load_state_dict(weights)
+    # print(info)
+
+    
     for name, module in net.named_modules():
         if isinstance(module, Attention):
             setattr(module, "matmul1", MatMul())
             setattr(module, "matmul2", MatMul())
             module.forward = MethodType(attention_forward, module)
+            # print(f"replace {name} with attention_forward")
         if isinstance(module, WindowAttention):
             setattr(module, "matmul1", MatMul())
             setattr(module, "matmul2", MatMul())
             module.forward = MethodType(window_attention_forward, module)
+            # print(f"replace {name} with window_attention_forward")
 
     net.cuda()
     net.eval()
