@@ -20,6 +20,8 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--n_gpu", type=int, default=6)
     parser.add_argument("--multiprocess", action='store_true')
+    parser.add_argument("--config", type=str)
+    parser.add_argument("--weight", type=str)
     args = parser.parse_args()
     return args
 
@@ -90,41 +92,64 @@ def init_config(config_name):
     return quant_cfg
         
 
-def experiment_basic(net='vit_base_patch16_384', config="PTQ4ViT"):
+def experiment_basic(net='vit_base_patch16_384', config="PTQ4ViT", weight=None):
     """
     A basic testbench.
     """
     quant_cfg = init_config(config)
-    net = get_net(net)
+    net = get_net(net, weight)
     wrapped_modules = net_wrap.wrap_modules_in_net(net,quant_cfg)
     
-    g=datasets.ViTImageNetLoaderGenerator('/datasets/imagenet','imagenet',32,32,16,kwargs={"model":net})
+    g=datasets.ViTImageNetLoaderGenerator('/dataset/imagenet','imagenet',32,128,16,kwargs={"model":net})
     test_loader=g.test_loader()
     calib_loader=g.calib_loader(num=32)
     
-    quant_calibrator = HessianQuantCalibrator(net,wrapped_modules,calib_loader,sequential=False,batch_size=4) # 16 is too big for ViT-L-16
+    quant_calibrator = HessianQuantCalibrator(net,wrapped_modules,calib_loader,sequential=False,batch_size=1) # 16 is too big for ViT-L-16
     quant_calibrator.batching_quant_calib()
     
-    test_classification(net,test_loader)
+    acc = test_classification(net,test_loader) * 100.0
+    
+    with open('log.txt', 'a+') as file:
+        file.write(f"{os.path.basename(weight)}:  {round(acc, 3)}\n")
+        file.close()
 
 if __name__=='__main__':
     args = parse_args()
-    cfg_list = []
+    
+    cfg = {
+        "net": args.config,
+        "config": 'PTQ4ViT',
+        "weight": args.weight
+    }
+    
+    experiment_basic(**cfg)
+    
+    # cfg_list = []
 
-    nets = ['vit_tiny_patch16_224', "deit_base_patch16_384"]
-    configs= ['PTQ4ViT']
+    # configs = ['PTQ4ViT']
+    
+    # nets = ['configs/deit_small.yaml']
+    # nets = ['configs/deit_base.yaml']
+    # nets = ['configs/swin_small.yaml']
+    # nets = ['configs/swin_base.yaml']
+    # weights = ['elsa_subnet_weights/ELSA_deit_s_u24_2.5G.pth', 'elsa_subnet_weights/ELSA_deit_s_u24_2.5G.pth']
+    # weights = ['elsa_subnet_weights/ELSA_deit_b_u24_9.2G.pth', 'elsa_subnet_weights/ELSA_deit_b_7G.pth', 'elsa_subnet_weights/ELSA_deit_b_6G.pth']
+    # weights = ['elsa_subnet_weights/ELSA_swin_s_u24_4.6G.pth', 'elsa_subnet_weights/ELSA_swin_s_4G.pth', 'elsa_subnet_weights/ELSA_swin_s_3.5G.pth']
+    # weights = ['elsa_subnet_weights/ELSA_swin_b_u24_8G.pth', 'elsa_subnet_weights/ELSA_swin_b_6G.pth', 'elsa_subnet_weights/ELSA_swin_b_5.3G.pth']
 
-    cfg_list = [{
-        "net":net,
-        "config":config,
-        }
-        for net, config in product(nets, configs) 
-    ]
 
-    if args.multiprocess:
-        multiprocess(experiment_basic, cfg_list, n_gpu=args.n_gpu)
-    else:
-        for cfg in cfg_list:
-            experiment_basic(**cfg)
+    # cfg_list = [{
+    #     "net":net,
+    #     "config":config,
+    #     "weight":weight,
+    #     }
+    #     for net, config, weight in product(nets, configs, weights) 
+    # ]
+
+    # if args.multiprocess:
+    #     multiprocess(experiment_basic, cfg_list, n_gpu=args.n_gpu)
+    # else:
+    #     for cfg in cfg_list:
+    #         experiment_basic(**cfg)
     
 
