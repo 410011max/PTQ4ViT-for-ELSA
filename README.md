@@ -107,7 +107,7 @@ Add `utils/integer.py`, you can now:
 - timm
 
 ### Datasets
-To run example testing, you should put your ImageNet2012 dataset in path `/datasets/imagenet`.
+To run example testing, you should put your ImageNet2012 dataset in path `/dataset/imagenet`.
 
 We use `ViTImageNetLoaderGenerator` in `utils/datasets.py` to initialize our DataLoader.
 If your Imagenet datasets are stored elsewhere, you'll need to manually pass its root as an argument when instantiating a `ViTImageNetLoaderGenerator`.

@@ -23,7 +23,7 @@ def test_all(name, cfg_modifier=lambda x: x, calib_size=32, config_name="PTQ4ViT
 
     wrapped_modules=net_wrap.wrap_modules_in_net(net,quant_cfg)
     
-    g=datasets.ViTImageNetLoaderGenerator('/datasets/imagenet','imagenet',32,32,16, kwargs={"model":net})
+    g=datasets.ViTImageNetLoaderGenerator('/dataset/imagenet','imagenet',32,32,16, kwargs={"model":net})
     test_loader=g.test_loader()
     calib_loader=g.calib_loader(num=calib_size)
     
