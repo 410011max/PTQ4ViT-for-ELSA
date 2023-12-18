@@ -1,0 +1,8 @@
+MODEL:
+  TYPE: swin
+  NAME: swin_base_uncompressed
+  SWIN:
+    EMBED_DIM: 128
+    DEPTHS: [ 2, 2, 18, 2 ]
+    NUM_HEADS: [ 4, 8, 16, 32 ]
+    WINDOW_SIZE: 7
